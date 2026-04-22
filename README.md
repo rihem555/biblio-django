@@ -65,7 +65,7 @@ python manage.py runserver
 - ✅ **Bootstrap 5** framework CSS (+1)
 - ✅ **Upload d'images** pour les couvertures (+2)
 
-**Total possible : 15 + 5 = 20/20** 🎯
+
 
 ---
 
