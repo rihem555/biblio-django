@@ -1,0 +1,105 @@
+{% extends 'livres/base.html' %}
+
+{% block title %}{{ titre_page }} — BiblioTech{% endblock %}
+
+{% block content %}
+
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+
+        <div class="page-header fade-in text-center">
+            <div style="font-size: 3rem; margin-bottom: 1rem;">
+                {% if livre %}✏️{% else %}➕{% endif %}
+            </div>
+            <h1 class="section-title" style="font-size: 2rem;">{{ titre_page }}</h1>
+            {% if livre %}
+            <p style="color: #A7A9BE; margin-top: 1rem; margin-bottom: 0;">
+                Modification de : <strong style="color: white;">{{ livre.titre }}</strong>
+            </p>
+            {% endif %}
+        </div>
+
+        <div style="background: var(--card-bg); border: 1px solid rgba(255,255,255,0.08); border-radius: 24px; padding: 2.5rem;" class="fade-in">
+            <form method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+
+                <div class="row g-4">
+                    <div class="col-md-6">
+                        <label class="form-label">
+                            <i class="bi bi-type me-1" style="color: #9C93FF;"></i>Titre *
+                        </label>
+                        {{ form.titre }}
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">
+                            <i class="bi bi-person me-1" style="color: #9C93FF;"></i>Auteur *
+                        </label>
+                        {{ form.auteur }}
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">
+                            <i class="bi bi-tag me-1" style="color: #9C93FF;"></i>Genre *
+                        </label>
+                        {{ form.genre }}
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">
+                            <i class="bi bi-star me-1" style="color: #FFD700;"></i>Note *
+                        </label>
+                        {{ form.note }}
+                    </div>
+                    <div class="col-12">
+                        <label class="form-label">
+                            <i class="bi bi-text-paragraph me-1" style="color: #9C93FF;"></i>Description
+                        </label>
+                        {{ form.description }}
+                    </div>
+                    <div class="col-md-8">
+                        <label class="form-label">
+                            <i class="bi bi-image me-1" style="color: #9C93FF;"></i>Image de couverture
+                        </label>
+                        {{ form.image }}
+                        <div style="color: #A7A9BE; font-size: 0.8rem; margin-top: 0.5rem;">
+                            Formats acceptés : JPG, PNG, WebP
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">
+                            <i class="bi bi-circle me-1" style="color: #43E97B;"></i>Disponibilité
+                        </label>
+                        <div style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; padding: 0.9rem 1rem; display: flex; align-items: center; gap: 0.75rem;">
+                            {{ form.disponible }}
+                            <label for="{{ form.disponible.id_for_label }}" style="cursor: pointer; margin: 0; color: #A7A9BE;">
+                                Livre disponible
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Error messages -->
+                {% if form.errors %}
+                <div class="alert alert-danger mt-4">
+                    <i class="bi bi-exclamation-triangle me-2"></i>
+                    Veuillez corriger les erreurs dans le formulaire.
+                </div>
+                {% endif %}
+
+                <div class="d-flex gap-3 mt-4 justify-content-end">
+                    <a href="{% url 'liste_livres' %}" class="btn btn-danger-custom">
+                        <i class="bi bi-x-lg me-2"></i>Annuler
+                    </a>
+                    <button type="submit" class="btn btn-primary-custom">
+                        {% if livre %}
+                            <i class="bi bi-check-lg me-2"></i>Sauvegarder
+                        {% else %}
+                            <i class="bi bi-plus-lg me-2"></i>Ajouter le livre
+                        {% endif %}
+                    </button>
+                </div>
+            </form>
+        </div>
+
+    </div>
+</div>
+
+{% endblock %}

@@ -1,0 +1,59 @@
+{% extends 'livres/base.html' %}
+
+{% block title %}Supprimer {{ livre.titre }} — BiblioTech{% endblock %}
+
+{% block content %}
+
+<div class="row justify-content-center">
+    <div class="col-md-6 col-lg-5">
+        <div class="text-center fade-in">
+
+            <div style="width: 80px; height: 80px; background: rgba(255,101,132,0.15); border: 2px solid rgba(255,101,132,0.3); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1.5rem; font-size: 2rem;">
+                🗑️
+            </div>
+
+            <h2 style="font-family: 'Syne', sans-serif; font-weight: 800; margin-bottom: 0.5rem;">
+                Supprimer ce livre ?
+            </h2>
+            <p style="color: #A7A9BE; margin-bottom: 2rem;">
+                Cette action est <strong style="color: #FF6584;">irréversible</strong>.
+            </p>
+
+            <!-- Book info -->
+            <div style="background: var(--card-bg); border: 1px solid rgba(255,101,132,0.2); border-radius: 20px; padding: 1.5rem; margin-bottom: 2rem; text-align: left;">
+                <div class="d-flex gap-3 align-items-center">
+                    {% if livre.image %}
+                        <img src="{{ livre.image.url }}" alt="{{ livre.titre }}"
+                             style="width: 60px; height: 80px; object-fit: cover; border-radius: 8px;">
+                    {% else %}
+                        <div style="width: 60px; height: 80px; background: linear-gradient(135deg, var(--primary), var(--secondary)); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 1.5rem;">
+                            📚
+                        </div>
+                    {% endif %}
+                    <div>
+                        <div style="font-family: 'Syne', sans-serif; font-weight: 700; font-size: 1.1rem;">{{ livre.titre }}</div>
+                        <div style="color: #A7A9BE; font-size: 0.9rem; margin-top: 0.3rem;">
+                            <i class="bi bi-person me-1"></i>{{ livre.auteur }}
+                        </div>
+                        <div class="mt-1">
+                            <span class="badge-genre">{{ livre.get_genre_display }}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <form method="post" class="d-flex gap-3 justify-content-center">
+                {% csrf_token %}
+                <a href="{% url 'liste_livres' %}" class="btn btn-edit-custom flex-grow-1">
+                    <i class="bi bi-arrow-left me-2"></i>Annuler
+                </a>
+                <button type="submit" class="btn btn-danger-custom flex-grow-1">
+                    <i class="bi bi-trash me-2"></i>Supprimer
+                </button>
+            </form>
+
+        </div>
+    </div>
+</div>
+
+{% endblock %}

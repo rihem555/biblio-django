@@ -1,0 +1,135 @@
+{% extends 'livres/base.html' %}
+
+{% block title %}BiblioTech — Accueil{% endblock %}
+
+{% block content %}
+
+<!-- HERO SECTION -->
+<section class="text-center py-5 mb-5 fade-in">
+    <div style="display: inline-block; background: rgba(108,99,255,0.15); border: 1px solid rgba(108,99,255,0.3); border-radius: 50px; padding: 8px 20px; font-size: 0.85rem; color: #9C93FF; margin-bottom: 1.5rem;">
+        <i class="bi bi-stars me-1"></i> Votre bibliothèque numérique
+    </div>
+    <h1 style="font-family: 'Syne', sans-serif; font-size: clamp(2.5rem, 6vw, 4.5rem); font-weight: 800; line-height: 1.1; margin-bottom: 1.5rem;">
+        Découvrez, lisez,<br>
+        <span style="background: linear-gradient(135deg, #6C63FF, #FF6584, #43E97B); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">
+            partagez vos livres
+        </span>
+    </h1>
+    <p style="color: #A7A9BE; font-size: 1.2rem; max-width: 550px; margin: 0 auto 2.5rem;">
+        Gérez votre collection, laissez des avis et explorez des milliers de titres dans votre catalogue personnel.
+    </p>
+    <div class="d-flex gap-3 justify-content-center flex-wrap">
+        <a href="{% url 'liste_livres' %}" class="btn btn-primary-custom btn-lg">
+            <i class="bi bi-grid-3x3-gap me-2"></i>Voir le catalogue
+        </a>
+        {% if user.is_staff %}
+        <a href="{% url 'ajouter_livre' %}" class="btn btn-edit-custom btn-lg">
+            <i class="bi bi-plus-circle me-2"></i>Ajouter un livre
+        </a>
+        {% else %}
+        <a href="{% url 'login' %}" class="btn btn-edit-custom btn-lg">
+            <i class="bi bi-lock me-2"></i>Se connecter
+        </a>
+        {% endif %}
+    </div>
+</section>
+
+<!-- STATS -->
+<section class="row g-4 mb-5">
+    <div class="col-6 col-md-3 fade-in stagger-1">
+        <div class="stat-card">
+            <div class="stat-number">{{ total_livres }}</div>
+            <div style="color: #A7A9BE; font-size: 0.9rem; margin-top: 0.5rem;">
+                <i class="bi bi-book me-1"></i>Livres
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-md-3 fade-in stagger-2">
+        <div class="stat-card">
+            <div class="stat-number" style="background: linear-gradient(135deg, #43E97B, #38F9D7); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">
+                {{ livres_disponibles }}
+            </div>
+            <div style="color: #A7A9BE; font-size: 0.9rem; margin-top: 0.5rem;">
+                <i class="bi bi-check-circle me-1"></i>Disponibles
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-md-3 fade-in stagger-3">
+        <div class="stat-card">
+            <div class="stat-number" style="background: linear-gradient(135deg, #FF6584, #FF8E53); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">
+                {{ total_commentaires }}
+            </div>
+            <div style="color: #A7A9BE; font-size: 0.9rem; margin-top: 0.5rem;">
+                <i class="bi bi-chat-dots me-1"></i>Commentaires
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-md-3 fade-in stagger-4">
+        <div class="stat-card">
+            <div class="stat-number" style="background: linear-gradient(135deg, #F7971E, #FFD200); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">
+                {{ note_moyenne }}
+            </div>
+            <div style="color: #A7A9BE; font-size: 0.9rem; margin-top: 0.5rem;">
+                <i class="bi bi-star me-1"></i>Note moyenne
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- DERNIERS LIVRES -->
+{% if derniers_livres %}
+<section class="mb-5 fade-in">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="section-title">Derniers ajouts</h2>
+        <a href="{% url 'liste_livres' %}" style="color: #9C93FF; text-decoration: none; font-weight: 500;">
+            Voir tout <i class="bi bi-arrow-right"></i>
+        </a>
+    </div>
+    <div class="row g-4">
+        {% for livre in derniers_livres %}
+        <div class="col-sm-6 col-lg-3 fade-in" style="animation-delay: {{ forloop.counter0 }}00ms">
+            <div class="card-livre h-100">
+                <a href="{% url 'detail_livre' livre.pk %}" style="text-decoration: none; color: inherit;">
+                    {% if livre.image %}
+                        <img src="{{ livre.image.url }}" alt="{{ livre.titre }}" class="livre-cover">
+                    {% else %}
+                        <div class="cover-placeholder">📚</div>
+                    {% endif %}
+                    <div class="p-3">
+                        <div class="d-flex gap-2 mb-2 flex-wrap">
+                            <span class="badge-genre">{{ livre.get_genre_display }}</span>
+                            {% if livre.disponible %}
+                                <span class="badge-dispo">✓ Dispo</span>
+                            {% else %}
+                                <span class="badge-indispo">✗ Indispo</span>
+                            {% endif %}
+                        </div>
+                        <h6 style="font-family: 'Syne', sans-serif; font-weight: 700; margin-bottom: 0.3rem;">{{ livre.titre }}</h6>
+                        <p style="color: #A7A9BE; font-size: 0.85rem; margin-bottom: 0.5rem;">{{ livre.auteur }}</p>
+                        <div>
+                            <span class="stars">{% for s in livre.get_stars %}★{% endfor %}</span>
+                            <span class="stars-empty">{% for s in livre.get_empty_stars %}★{% endfor %}</span>
+                        </div>
+                    </div>
+                </a>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</section>
+{% endif %}
+
+<!-- CTA SECTION -->
+{% if not user.is_authenticated %}
+<section class="text-center fade-in" style="background: linear-gradient(135deg, rgba(108,99,255,0.15), rgba(255,101,132,0.1)); border: 1px solid rgba(108,99,255,0.2); border-radius: 24px; padding: 4rem 2rem;">
+    <h2 style="font-family: 'Syne', sans-serif; font-weight: 800; font-size: 2rem; margin-bottom: 1rem;">
+        Rejoignez la communauté 📖
+    </h2>
+    <p style="color: #A7A9BE; margin-bottom: 2rem;">Connectez-vous pour ajouter des livres et laisser vos avis.</p>
+    <a href="{% url 'login' %}" class="btn btn-primary-custom btn-lg">
+        <i class="bi bi-person-check me-2"></i>Se connecter maintenant
+    </a>
+</section>
+{% endif %}
+
+{% endblock %}

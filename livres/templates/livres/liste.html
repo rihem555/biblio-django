@@ -1,0 +1,138 @@
+{% extends 'livres/base.html' %}
+
+{% block title %}Catalogue — BiblioTech{% endblock %}
+
+{% block content %}
+
+<div class="page-header fade-in">
+    <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
+        <div>
+            <h1 class="section-title mb-3">📚 Catalogue</h1>
+            <p style="color: #A7A9BE; margin: 0;">
+                <strong style="color: white;">{{ total }}</strong> livre{{ total|pluralize }} trouvé{{ total|pluralize }}
+            </p>
+        </div>
+        {% if user.is_staff %}
+        <a href="{% url 'ajouter_livre' %}" class="btn btn-primary-custom">
+            <i class="bi bi-plus-lg me-2"></i>Ajouter un livre
+        </a>
+        {% endif %}
+    </div>
+</div>
+
+<!-- SEARCH & FILTERS -->
+<div class="search-wrapper fade-in">
+    <form method="get" action="">
+        <div class="row g-3 align-items-end">
+            <div class="col-md-5">
+                <label class="form-label"><i class="bi bi-search me-1"></i>Recherche</label>
+                <input type="text" name="q" value="{{ query }}" class="form-control"
+                       placeholder="Titre, auteur, description...">
+            </div>
+            <div class="col-md-3">
+                <label class="form-label"><i class="bi bi-tag me-1"></i>Genre</label>
+                <select name="genre" class="form-select">
+                    <option value="">Tous les genres</option>
+                    {% for g in genres %}
+                    <option value="{{ g }}" {% if genre_filtre == g %}selected{% endif %}>{{ g|title }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-2">
+                <label class="form-label"><i class="bi bi-circle me-1"></i>Disponibilité</label>
+                <select name="disponible" class="form-select">
+                    <option value="">Tous</option>
+                    <option value="true" {% if disponible_filtre == 'true' %}selected{% endif %}>✓ Disponibles</option>
+                    <option value="false" {% if disponible_filtre == 'false' %}selected{% endif %}>✗ Indisponibles</option>
+                </select>
+            </div>
+            <div class="col-md-2 d-flex gap-2">
+                <button type="submit" class="btn btn-primary-custom w-100">
+                    <i class="bi bi-search"></i>
+                </button>
+                <a href="{% url 'liste_livres' %}" class="btn btn-danger-custom">
+                    <i class="bi bi-x-lg"></i>
+                </a>
+            </div>
+        </div>
+    </form>
+</div>
+
+<!-- BOOK GRID -->
+{% if livres %}
+<div class="row g-4">
+    {% for livre in livres %}
+    <div class="col-sm-6 col-lg-4 col-xl-3 fade-in" style="animation-delay: {{ forloop.counter0 }}50ms">
+        <div class="card-livre h-100 d-flex flex-column">
+            <a href="{% url 'detail_livre' livre.pk %}" style="text-decoration: none; color: inherit;">
+                {% if livre.image %}
+                    <img src="{{ livre.image.url }}" alt="{{ livre.titre }}" class="livre-cover">
+                {% else %}
+                    <div class="cover-placeholder" style="font-size: 3rem;">
+                        {% if livre.genre == 'roman' %}📖
+                        {% elif livre.genre == 'science_fiction' %}🚀
+                        {% elif livre.genre == 'fantasy' %}🧙
+                        {% elif livre.genre == 'policier' %}🔍
+                        {% elif livre.genre == 'biographie' %}👤
+                        {% elif livre.genre == 'science' %}🔬
+                        {% elif livre.genre == 'philosophie' %}💭
+                        {% else %}📚{% endif %}
+                    </div>
+                {% endif %}
+            </a>
+            <div class="p-3 d-flex flex-column flex-grow-1">
+                <div class="d-flex gap-2 mb-2 flex-wrap">
+                    <span class="badge-genre">{{ livre.get_genre_display }}</span>
+                    {% if livre.disponible %}
+                        <span class="badge-dispo"><i class="bi bi-check"></i> Dispo</span>
+                    {% else %}
+                        <span class="badge-indispo"><i class="bi bi-x"></i> Indispo</span>
+                    {% endif %}
+                </div>
+                <a href="{% url 'detail_livre' livre.pk %}" style="text-decoration: none; color: inherit;">
+                    <h6 style="font-family: 'Syne', sans-serif; font-weight: 700; margin-bottom: 0.3rem; line-height: 1.3;">{{ livre.titre }}</h6>
+                </a>
+                <p style="color: #A7A9BE; font-size: 0.85rem; margin-bottom: 0.5rem;">
+                    <i class="bi bi-person me-1"></i>{{ livre.auteur }}
+                </p>
+                <div class="mb-2">
+                    <span class="stars">{% for s in livre.get_stars %}★{% endfor %}</span>
+                    <span class="stars-empty">{% for s in livre.get_empty_stars %}★{% endfor %}</span>
+                </div>
+                {% if livre.description %}
+                <p style="color: #A7A9BE; font-size: 0.8rem; flex-grow: 1; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;">
+                    {{ livre.description }}
+                </p>
+                {% endif %}
+
+                <!-- Actions -->
+                {% if user.is_staff %}
+                <div class="d-flex gap-2 mt-3">
+                    <a href="{% url 'modifier_livre' livre.pk %}" class="btn btn-sm btn-edit-custom flex-grow-1">
+                        <i class="bi bi-pencil"></i>
+                    </a>
+                    <a href="{% url 'supprimer_livre' livre.pk %}" class="btn btn-sm btn-danger-custom flex-grow-1">
+                        <i class="bi bi-trash"></i>
+                    </a>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+{% else %}
+<div class="text-center py-5 fade-in">
+    <div style="font-size: 5rem; margin-bottom: 1rem;">📭</div>
+    <h3 style="font-family: 'Syne', sans-serif; color: #A7A9BE;">Aucun livre trouvé</h3>
+    <p style="color: #A7A9BE;">Essayez d'autres critères de recherche.</p>
+    {% if user.is_staff %}
+    <a href="{% url 'ajouter_livre' %}" class="btn btn-primary-custom mt-3">
+        <i class="bi bi-plus-lg me-2"></i>Ajouter le premier livre
+    </a>
+    {% endif %}
+</div>
+{% endif %}
+
+{% endblock %}

@@ -1,0 +1,193 @@
+{% extends 'livres/base.html' %}
+
+{% block title %}{{ livre.titre }} — BiblioTech{% endblock %}
+
+{% block content %}
+
+<div class="row g-4 fade-in">
+    <!-- COVER -->
+    <div class="col-md-4 col-lg-3">
+        <div class="card-livre" style="overflow: hidden; border-radius: 20px;">
+            {% if livre.image %}
+                <img src="{{ livre.image.url }}" alt="{{ livre.titre }}" style="width: 100%; border-radius: 20px;">
+            {% else %}
+                <div class="cover-placeholder" style="height: 380px; border-radius: 20px; font-size: 6rem;">📚</div>
+            {% endif %}
+        </div>
+
+        <!-- Action Buttons -->
+        {% if user.is_staff %}
+        <div class="mt-3 d-flex flex-column gap-2">
+            <a href="{% url 'modifier_livre' livre.pk %}" class="btn btn-edit-custom">
+                <i class="bi bi-pencil me-2"></i>Modifier
+            </a>
+            <a href="{% url 'supprimer_livre' livre.pk %}" class="btn btn-danger-custom">
+                <i class="bi bi-trash me-2"></i>Supprimer
+            </a>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- INFO -->
+    <div class="col-md-8 col-lg-9">
+        <div class="d-flex gap-2 mb-3 flex-wrap">
+            <span class="badge-genre">{{ livre.get_genre_display }}</span>
+            {% if livre.disponible %}
+                <span class="badge-dispo"><i class="bi bi-check-circle me-1"></i>Disponible</span>
+            {% else %}
+                <span class="badge-indispo"><i class="bi bi-x-circle me-1"></i>Non disponible</span>
+            {% endif %}
+        </div>
+
+        <h1 style="font-family: 'Syne', sans-serif; font-weight: 800; font-size: 2.5rem; line-height: 1.2; margin-bottom: 0.5rem;">
+            {{ livre.titre }}
+        </h1>
+        <p style="color: #A7A9BE; font-size: 1.1rem; margin-bottom: 1.5rem;">
+            <i class="bi bi-person-circle me-2"></i><strong style="color: white;">{{ livre.auteur }}</strong>
+        </p>
+
+        <!-- Stars -->
+        <div class="mb-3">
+            <span class="stars" style="font-size: 1.5rem;">{% for s in stars %}★{% endfor %}</span>
+            <span class="stars-empty" style="font-size: 1.5rem;">{% for s in empty_stars %}★{% endfor %}</span>
+            <span style="color: #A7A9BE; margin-left: 0.5rem;">{{ livre.note }}/5</span>
+        </div>
+
+        <!-- Note moyenne utilisateurs -->
+        {% if note_moyenne %}
+        <div style="background: rgba(156,147,255,0.08); border: 1px solid rgba(156,147,255,0.2); border-radius: 12px; padding: 1rem; margin-bottom: 1rem;">
+            <span style="color: #9C93FF; font-weight: 600;">⭐ Note des lecteurs : {{ note_moyenne }}/5</span>
+            <span style="color: #A7A9BE; font-size: 0.85rem; margin-left: 0.5rem;">({{ total_votes }} vote{{ total_votes|pluralize }})</span>
+        </div>
+        {% endif %}
+
+        <!-- Widget de vote -->
+        {% if user.is_authenticated %}
+        <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; padding: 1rem; margin-bottom: 1.5rem;">
+            <p style="color: #A7A9BE; font-size: 0.9rem; margin-bottom: 0.5rem;">
+                {% if ma_note %}⭐ Votre note : {{ ma_note }}/5 — Modifier :{% else %}Notez ce livre :{% endif %}
+            </p>
+            <div class="d-flex gap-2">
+                {% for i in "12345" %}
+                <form method="post">
+                    {% csrf_token %}
+                    <input type="hidden" name="note" value="{{ forloop.counter }}">
+                    <button type="submit" style="background: {% if ma_note == forloop.counter %}#9C93FF{% else %}rgba(255,255,255,0.1){% endif %}; border: none; border-radius: 8px; color: white; padding: 0.4rem 0.8rem; cursor: pointer; font-size: 1rem;">
+                        {{ forloop.counter }}★
+                    </button>
+                </form>
+                {% endfor %}
+            </div>
+        </div>
+        {% else %}
+        <p style="color: #A7A9BE; font-size: 0.85rem; margin-bottom: 1.5rem;">
+            <a href="{% url 'login' %}" style="color: #9C93FF;">Connectez-vous</a> pour noter ce livre.
+        </p>
+        {% endif %}
+
+        <!-- Description -->
+        {% if livre.description %}
+        <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 16px; padding: 1.5rem; margin-bottom: 2rem;">
+            <h5 style="font-family: 'Syne', sans-serif; color: #9C93FF; margin-bottom: 1rem;">
+                <i class="bi bi-text-paragraph me-2"></i>À propos
+            </h5>
+            <p style="color: #A7A9BE; line-height: 1.8; margin: 0;">{{ livre.description }}</p>
+        </div>
+        {% endif %}
+
+        <!-- Meta -->
+        <div class="row g-3">
+            <div class="col-auto">
+                <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; padding: 1rem 1.5rem; text-align: center;">
+                    <div style="color: #A7A9BE; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1px;">Ajouté le</div>
+                    <div style="font-weight: 600; margin-top: 0.3rem;">{{ livre.date_ajout|date:"d/m/Y" }}</div>
+                </div>
+            </div>
+            <div class="col-auto">
+                <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; padding: 1rem 1.5rem; text-align: center;">
+                    <div style="color: #A7A9BE; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1px;">Commentaires</div>
+                    <div style="font-weight: 600; margin-top: 0.3rem;">{{ commentaires.count }}</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- COMMENTS SECTION -->
+<div class="mt-5 fade-in">
+    <h2 class="section-title mb-4">
+        <i class="bi bi-chat-square-dots me-2"></i>Commentaires
+        <span style="font-size: 1rem; color: #A7A9BE; font-weight: 400; font-family: 'DM Sans', sans-serif; margin-left: 1rem;">
+            {{ commentaires.count }} avis
+        </span>
+    </h2>
+
+    <!-- Add Comment Form -->
+    {% if user.is_authenticated %}
+    <div style="background: rgba(108,99,255,0.05); border: 1px solid rgba(108,99,255,0.2); border-radius: 20px; padding: 2rem; margin-bottom: 2rem;">
+        <h5 style="font-family: 'Syne', sans-serif; margin-bottom: 1rem; color: #9C93FF;">
+            <i class="bi bi-pencil-square me-2"></i>Laisser un commentaire
+        </h5>
+        <form method="post">
+            {% csrf_token %}
+            <div class="mb-3">
+                {{ form.contenu }}
+            </div>
+            <button type="submit" class="btn btn-primary-custom">
+                <i class="bi bi-send me-2"></i>Publier
+            </button>
+        </form>
+    </div>
+    {% else %}
+    <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 16px; padding: 1.5rem; text-align: center; margin-bottom: 2rem;">
+        <p style="color: #A7A9BE; margin: 0;">
+            <a href="{% url 'login' %}" style="color: #9C93FF; font-weight: 600;">Connectez-vous</a>
+            pour laisser un commentaire.
+        </p>
+    </div>
+    {% endif %}
+
+    <!-- Comments List -->
+    {% if commentaires %}
+        {% for commentaire in commentaires %}
+        <div class="comment-card fade-in">
+            <div class="d-flex justify-content-between align-items-start mb-2">
+                <div class="d-flex align-items-center gap-2">
+                    <div style="width: 36px; height: 36px; background: linear-gradient(135deg, var(--primary), var(--secondary)); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.9rem;">
+                        {{ commentaire.auteur.username|first|upper }}
+                    </div>
+                    <div>
+                        <strong style="font-size: 0.95rem;">{{ commentaire.auteur.username }}</strong>
+                        <div style="color: #A7A9BE; font-size: 0.8rem;">{{ commentaire.date|date:"d/m/Y à H:i" }}</div>
+                    </div>
+                </div>
+                {% if user == commentaire.auteur or user.is_staff %}
+                <a href="{% url 'supprimer_commentaire' commentaire.pk %}"
+                   style="color: rgba(255,101,132,0.5); transition: color 0.3s;"
+                   onmouseover="this.style.color='#FF6584'" onmouseout="this.style.color='rgba(255,101,132,0.5)'"
+                   title="Supprimer">
+                    <i class="bi bi-trash"></i>
+                </a>
+                {% endif %}
+            </div>
+            <p style="color: #FFFFFE; line-height: 1.7; margin: 0; padding-left: 3rem;">
+                {{ commentaire.contenu }}
+            </p>
+        </div>
+        {% endfor %}
+    {% else %}
+    <div class="text-center py-4">
+        <div style="font-size: 3rem; margin-bottom: 1rem;">💬</div>
+        <p style="color: #A7A9BE;">Soyez le premier à commenter ce livre !</p>
+    </div>
+    {% endif %}
+</div>
+
+<!-- Back button -->
+<div class="mt-4 fade-in">
+    <a href="{% url 'liste_livres' %}" style="color: #9C93FF; text-decoration: none; font-weight: 500;">
+        <i class="bi bi-arrow-left me-1"></i>Retour au catalogue
+    </a>
+</div>
+
+{% endblock %}

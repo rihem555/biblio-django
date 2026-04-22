@@ -1,0 +1,86 @@
+{% extends 'livres/base.html' %}
+
+{% block title %}Inscription — BiblioTech{% endblock %}
+
+{% block content %}
+
+<div class="row justify-content-center align-items-center" style="min-height: 70vh;">
+    <div class="col-md-5 col-lg-4">
+
+        <div class="text-center mb-4 fade-in">
+            <div style="font-size: 3.5rem; margin-bottom: 1rem;">✨</div>
+            <h1 style="font-family: 'Syne', sans-serif; font-weight: 800; font-size: 2rem;">
+                Créer un compte
+            </h1>
+            <p style="color: #A7A9BE;">Rejoignez la communauté BiblioTech</p>
+        </div>
+
+        <div style="background: var(--card-bg); border: 1px solid rgba(108,99,255,0.2); border-radius: 24px; padding: 2.5rem;" class="fade-in">
+
+            {% if form.errors %}
+            <div class="alert alert-danger mb-3">
+                <i class="bi bi-exclamation-triangle me-2"></i>
+                Veuillez corriger les erreurs ci-dessous.
+            </div>
+            {% endif %}
+
+            <form method="post">
+                {% csrf_token %}
+
+                <div class="mb-3">
+                    <label class="form-label">
+                        <i class="bi bi-person me-1" style="color: #9C93FF;"></i>Nom d'utilisateur
+                    </label>
+                    <input type="text" name="username" class="form-control"
+                           placeholder="Choisissez un nom d'utilisateur" autofocus required
+                           value="{{ form.username.value|default:'' }}">
+                    {% if form.username.errors %}
+                        <div style="color: #FF6584; font-size: 0.8rem; margin-top: 0.4rem;">
+                            {{ form.username.errors.0 }}
+                        </div>
+                    {% endif %}
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">
+                        <i class="bi bi-lock me-1" style="color: #9C93FF;"></i>Mot de passe
+                    </label>
+                    <input type="password" name="password1" class="form-control"
+                           placeholder="Minimum 8 caractères" required>
+                    {% if form.password1.errors %}
+                        <div style="color: #FF6584; font-size: 0.8rem; margin-top: 0.4rem;">
+                            {{ form.password1.errors.0 }}
+                        </div>
+                    {% endif %}
+                </div>
+
+                <div class="mb-4">
+                    <label class="form-label">
+                        <i class="bi bi-lock-fill me-1" style="color: #9C93FF;"></i>Confirmer le mot de passe
+                    </label>
+                    <input type="password" name="password2" class="form-control"
+                           placeholder="Répétez votre mot de passe" required>
+                    {% if form.password2.errors %}
+                        <div style="color: #FF6584; font-size: 0.8rem; margin-top: 0.4rem;">
+                            {{ form.password2.errors.0 }}
+                        </div>
+                    {% endif %}
+                </div>
+
+                <button type="submit" class="btn btn-primary-custom w-100 py-3">
+                    <i class="bi bi-person-plus me-2"></i>Créer mon compte
+                </button>
+            </form>
+
+            <div class="text-center mt-4" style="color: #A7A9BE; font-size: 0.9rem;">
+                Déjà un compte ?
+                <a href="{% url 'login' %}" style="color: #9C93FF; font-weight: 600; text-decoration: none;">
+                    Se connecter
+                </a>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+{% endblock %}
